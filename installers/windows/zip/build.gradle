@@ -64,12 +64,12 @@ task copyImage(type: Copy) {
     dependsOn executeBuild
 
     from "${executeBuild.workingDir}/build/${project.jdkImageName}/images"
-    into "$buildRoot/build"
+    into "${buildRoot}/build"
 }
 
 task packageTestImage(type: Zip) {
     dependsOn copyImage
-    archiveName "${project.correttoTestImageArchiveName}.zip"
+    archiveFileName.set("${project.correttoTestImageArchiveName}.zip")
     from("${copyImage.destinationDir}/test") {
         include '**'
     }
@@ -78,7 +78,7 @@ task packageTestImage(type: Zip) {
 
 task packageDebugSymbols(type: Zip) {
     dependsOn packageTestImage
-    archiveName "${project.correttoDebugSymbolsArchiveName}.zip"
+    archiveFileName.set("${project.correttoDebugSymbolsArchiveName}.zip")
 
     from("${copyImage.destinationDir}/jdk") {
         include 'bin/*.diz'
@@ -90,12 +90,13 @@ task packageDebugSymbols(type: Zip) {
 
 task packageBuildResults(type: Zip) {
     dependsOn packageDebugSymbols
-    archiveName  = "unsigned-jdk-image.zip"
+    archiveFileName.set("unsigned-jdk-image.zip")
 
-    from("${copyImage.destinationDir}/jdk") {
+    from("${buildRoot}/build/jdk") {
         exclude 'demo'
         exclude '**/*.diz'
     }
+
     from(buildRoot) {
         include 'ADDITIONAL_LICENSE_INFO'
         include 'ASSEMBLY_EXCEPTION'
